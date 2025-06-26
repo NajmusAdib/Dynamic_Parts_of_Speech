@@ -26,8 +26,7 @@
 
 - **HTML5** – Semantic, accessible structure.
 - **CSS3** – Custom animations, gradients, responsive glass UI.
-- **JavaScript** – Vanilla JS logic (no frameworks).
-- **[Optional] LLM API** – Integrate with NLP APIs (e.g., OpenAI, spaCy) for sentence analysis.
+- **JavaScript** – Vanilla JS logic (no frameworks)
 
 ---
 
