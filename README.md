@@ -60,17 +60,7 @@ Examples to include:
 
 ---
 
-## 🔧 Customization Ideas
 
-You can extend this app in multiple directions:
-
-- 🌐 Multilingual grammar support
-- 🎤 Voice input for sentence parsing
-- 📝 Interactive quizzes or flashcards
-- 🧩 Export-to-PDF or shareable grammar breakdowns
-- 💬 Explanation chatbot for rules
-
----
 
 ## 📚 Educational Use Cases
 
