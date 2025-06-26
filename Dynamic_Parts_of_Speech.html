@@ -34,7 +34,7 @@
 
         /* Container Styling */
         .container {
-            max-width: 1400px;
+            max-width: 1200px; /* Adjusted from 1400px for less compactness in normal view */
             width: 100%;
             margin: 0 auto;
             background: rgba(255, 255, 255, 0.15); /* Slightly less transparent */
@@ -54,7 +54,7 @@
         /* Header Styling */
         .header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 60px; /* Increased padding */
+            padding: 40px; /* Adjusted from 60px */
             text-align: center;
             cursor: pointer;
             transition: transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.5s cubic-bezier(0.25, 0.8, 0.25, 1); /* Smoother transition */
@@ -87,7 +87,7 @@
         }
 
         .header h1 {
-            font-size: 4.5em; /* Slightly larger */
+            font-size: 4em; /* Adjusted from 4.5em */
             color: white;
             text-shadow: 3px 3px 8px rgba(0, 0, 0, 0.5);
             position: relative;
@@ -119,7 +119,7 @@
 
         /* Main Content Styling */
         .main-content {
-            padding: 50px; /* Increased padding */
+            padding: 40px; /* Adjusted from 50px */
             display: none;
             animation: slideIn 0.8s cubic-bezier(0.25, 0.8, 0.25, 1);
             width: 100%;
@@ -141,7 +141,7 @@
         /* Part Card Styling */
         .part-card {
             border-radius: 25px;
-            padding: 35px; /* More padding */
+            padding: 30px; /* Adjusted from 35px */
             cursor: pointer;
             transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15); /* Softer shadow */
@@ -188,7 +188,7 @@
         }
 
         .part-card h2 {
-            font-size: 2.4em;
+            font-size: 2.2em; /* Adjusted from 2.4em */
             margin-bottom: 20px; /* More space */
             color: #333;
             display: flex;
@@ -210,7 +210,7 @@
 
         .part-card p {
             color: #444;
-            font-size: 1.25em; /* Larger */
+            font-size: 1.2em; /* Adjusted from 1.25em */
             line-height: 1.7; /* More line spacing */
             position: relative;
             z-index: 1;
@@ -407,7 +407,7 @@
         .llm-feature-section {
             background: rgba(255, 255, 255, 0.95);
             border-radius: 25px;
-            padding: 40px;
+            padding: 30px; /* Adjusted from 40px */
             margin-bottom: 40px;
             box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
             text-align: center;
@@ -415,7 +415,7 @@
         }
 
         .llm-feature-section h2 {
-            font-size: 2.2em;
+            font-size: 2em; /* Adjusted from 2.2em */
             color: #4A4A4A;
             margin-bottom: 25px;
             display: flex;
@@ -545,7 +545,7 @@
         .modal-content {
             background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
             border-radius: 25px;
-            padding: 45px; /* More padding */
+            padding: 35px; /* Adjusted from 45px */
             max-width: 650px; /* Slightly wider */
             width: 90%;
             box-shadow: 0 20px 45px rgba(0, 0, 0, 0.3);
@@ -583,7 +583,7 @@
         }
 
         .modal-title {
-            font-size: 2.8em;
+            font-size: 2.4em; /* Adjusted from 2.8em */
             color: #667eea;
             margin-bottom: 25px;
             text-align: center;
@@ -990,7 +990,7 @@
                     { 
                         name: "Possessive Adjective", 
                         example: "my, your, his, her, its, our, their",
-                        definition: "Shows ownership or relationship and always precedes a noun.",
+                        definition: "Show ownership or relationship and always precedes a noun.",
                         examples: "'My' car, 'your' book, 'his' house, 'her' cat, 'its' tail, 'our' team, 'their' children.",
                         usage: "Acts like an adjective by modifying the noun that follows it. Do not use apostrophes with them."
                     },
@@ -1511,7 +1511,8 @@
                     }
                 };
 
-                const apiKey = ""; // Provided by the environment
+                // Use an empty API key, as it's provided by the environment.
+                const apiKey = "AIzaSyACFymYsDobIhQnDHYhZYB_dnRtT-1qBZY"; 
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
                 const response = await fetch(apiUrl, {
@@ -1640,7 +1641,8 @@
                     }
                 };
 
-                const apiKey = ""; // Provided by the environment
+                // Use an empty API key, as it's provided by the environment.
+                const apiKey = "AIzaSyACFymYsDobIhQnDHYhZYB_dnRtT-1qBZY"; 
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
                 const response = await fetch(apiUrl, {
@@ -1762,7 +1764,8 @@
                 });
 
                 const payload = { contents: chatHistory };
-                const apiKey = ""; // Provided by the environment
+                // Use an empty API key, as it's provided by the environment.
+                const apiKey = "AIzaSyACFymYsDobIhQnDHYhZYB_dnRtT-1qBZY"; 
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
                 const response = await fetch(apiUrl, {
@@ -1810,7 +1813,8 @@
                 });
 
                 const payload = { contents: chatHistory };
-                const apiKey = ""; // Provided by the environment
+                // Use an empty API key, as it's provided by the environment.
+                const apiKey = "AIzaSyACFymYsDobIhQnDHYhZYB_dnRtT-1qBZY"; 
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
                 const response = await fetch(apiUrl, {
@@ -1843,8 +1847,6 @@
                 console.error('Error calling Gemini API for PoS examples:', error);
             }
         }
-
-
     </script>
 </body>
 </html>
