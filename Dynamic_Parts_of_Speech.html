@@ -1,0 +1,1850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parts of Speech Explorer</title>
+    <style>
+        /* General Reset and Body Styling */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #ffecd2, #fcb69f);
+            background-size: 400% 400%;
+            animation: gradientShift 20s ease infinite; /* Smoother, slower background animation */
+            min-height: 100vh;
+            padding: 40px; /* Increased padding */
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-y: auto;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Container Styling */
+        .container {
+            max-width: 1400px;
+            width: 100%;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.15); /* Slightly less transparent */
+            border-radius: 40px; /* Increased border radius */
+            box-shadow: 0 40px 80px rgba(0, 0, 0, 0.25); /* Softer, deeper shadow */
+            overflow: hidden;
+            backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            min-height: 90vh;
+        }
+
+        /* Header Styling */
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 60px; /* Increased padding */
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.5s cubic-bezier(0.25, 0.8, 0.25, 1); /* Smoother transition */
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+            border-bottom-left-radius: 30px;
+            border-bottom-right-radius: 30px;
+        }
+
+        .header:hover {
+            transform: translateY(-5px) scale(1.01);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(from 0deg, transparent, rgba(255,255,255,0.2), transparent);
+            animation: rotate 5s linear infinite; /* Slower rotation */
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .header h1 {
+            font-size: 4.5em; /* Slightly larger */
+            color: white;
+            text-shadow: 3px 3px 8px rgba(0, 0, 0, 0.5);
+            position: relative;
+            z-index: 1;
+            animation: textGlow 4s ease-in-out infinite alternate;
+        }
+
+        @keyframes textGlow {
+            from { text-shadow: 3px 3px 8px rgba(0, 0, 0, 0.5), 0 0 20px rgba(255, 255, 255, 0.5); }
+            to { text-shadow: 3px 3px 8px rgba(0, 0, 0, 0.5), 0 0 35px rgba(255, 255, 255, 0.8); }
+        }
+
+        .click-hint {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.95);
+            font-style: italic;
+            margin-top: 25px; /* More space */
+            font-size: 1.3em; /* Larger */
+            animation: bounce 2.5s infinite; /* Slower bounce */
+            position: relative;
+            z-index: 1;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-12px); }
+            60% { transform: translateY(-6px); }
+        }
+
+        /* Main Content Styling */
+        .main-content {
+            padding: 50px; /* Increased padding */
+            display: none;
+            animation: slideIn 0.8s cubic-bezier(0.25, 0.8, 0.25, 1);
+            width: 100%;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(60px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Parts Grid Layout */
+        .parts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 40px; /* Increased gap */
+            margin-top: 40px; /* More space */
+        }
+
+        /* Part Card Styling */
+        .part-card {
+            border-radius: 25px;
+            padding: 35px; /* More padding */
+            cursor: pointer;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15); /* Softer shadow */
+            position: relative;
+            overflow: hidden;
+            animation: cardFloat 8s ease-in-out infinite; /* Slower float */
+        }
+        
+        /* Individual Card Backgrounds (Staggered) */
+        .part-card:nth-child(1) { background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%); animation-delay: 0s; }
+        .part-card:nth-child(2) { background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); animation-delay: 0.7s; }
+        .part-card:nth-child(3) { background: linear-gradient(135deg, #d299c2 0%, #fef9d7 100%); animation-delay: 1.4s; }
+        .part-card:nth-child(4) { background: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%); animation-delay: 2.1s; }
+        .part-card:nth-child(5) { background: linear-gradient(135deg, #fdbb2d 0%, #22c1c3 100%); animation-delay: 2.8s; }
+        .part-card:nth-child(6) { background: linear-gradient(135deg, #ee9ca7 0%, #ffdde1 100%); animation-delay: 3.5s; }
+        .part-card:nth-child(7) { background: linear-gradient(135deg, #83a4d4 0%, #b6fbff 100%); animation-delay: 4.2s; }
+        .part-card:nth-child(8) { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); animation-delay: 4.9s; }
+
+
+        @keyframes cardFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-12px); }
+        }
+
+        /* Hover Effect for Cards */
+        .part-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.45), transparent);
+            transition: left 0.6s cubic-bezier(0.25, 0.8, 0.25, 1); /* Smoother transition */
+        }
+
+        .part-card:hover::before {
+            left: 100%;
+        }
+
+        .part-card:hover {
+            transform: translateY(-12px) scale(1.03);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.25);
+        }
+
+        .part-card h2 {
+            font-size: 2.4em;
+            margin-bottom: 20px; /* More space */
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .emoji {
+            font-size: 1.5em;
+            animation: spin 5s linear infinite; /* Slower spin */
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .part-card p {
+            color: #444;
+            font-size: 1.25em; /* Larger */
+            line-height: 1.7; /* More line spacing */
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Part Details Section (initially hidden) */
+        .part-details {
+            display: none;
+            margin-top: 30px; /* More space */
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            animation: expandIn 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+            box-shadow: inset 0 0 25px rgba(0, 0, 0, 0.1);
+        }
+
+        @keyframes expandIn {
+            from { opacity: 0; transform: scale(0.85); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* Detail Section (Types, Tricks) */
+        .detail-section {
+            margin: 25px 0;
+            padding: 25px;
+            background: linear-gradient(135deg, #6e84ee 0%, #8053a8 100%);
+            color: white;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .detail-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        .detail-section:hover::before {
+            transform: translateX(100%);
+        }
+
+        .detail-section:hover {
+            transform: scale(1.03);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
+        }
+
+        .detail-section h3 {
+            margin-bottom: 18px;
+            font-size: 1.6em;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Detail Content (initially hidden) */
+        .detail-content {
+            display: none;
+            margin-top: 25px;
+            padding: 25px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            animation: slideDown 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+            position: relative;
+            z-index: 1;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-25px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Types List and Items */
+        .types-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .type-item {
+            margin: 15px 0;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: transform 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
+            border-left: 6px solid rgba(255, 255, 255, 0.6);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .type-item:hover {
+            background: rgba(255, 255, 255, 0.4);
+            transform: translateX(12px) scale(1.02);
+            border-left-color: #fff;
+        }
+
+        .type-name {
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .type-example {
+            font-size: 1em;
+            opacity: 0.9;
+            font-style: italic;
+            margin-bottom: 10px;
+        }
+
+        /* Individual Type Details (initially hidden) */
+        .type-details {
+            display: none;
+            margin-top: 18px;
+            padding: 18px;
+            background: rgba(255, 255, 255, 0.35);
+            border-radius: 10px;
+            animation: fadeInUp 0.4s ease;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .type-definition, .type-examples, .type-usage {
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+
+        /* Tricks List Styling */
+        .tricks-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .trick-item {
+            margin: 15px 0;
+            padding: 18px;
+            background: rgba(255, 255, 255, 0.25);
+            border-radius: 10px;
+            border-left: 5px solid #ffd700;
+            transition: transform 0.3s ease, background-color 0.3s ease;
+            animation: slideInLeft 0.5s ease;
+            line-height: 1.6;
+        }
+
+        .trick-item:hover {
+            background: rgba(255, 255, 255, 0.35);
+            transform: translateX(8px);
+        }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-25px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        /* Expanded Class for Cards */
+        .expanded {
+            background: rgba(255, 255, 255, 0.25) !important;
+        }
+
+        /* Back Button Styling */
+        .back-btn {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+            color: white;
+            border: none;
+            padding: 18px 35px; /* Larger */
+            border-radius: 50px; /* Fully rounded */
+            cursor: pointer;
+            font-size: 1.2em;
+            margin-bottom: 35px; /* More space */
+            transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            box-shadow: 0 8px 20px rgba(255, 107, 107, 0.4);
+            font-weight: bold;
+        }
+
+        .back-btn:hover {
+            background: linear-gradient(135deg, #ee5a52, #ff6b6b);
+            transform: translateY(-4px) scale(1.05);
+            box-shadow: 0 12px 30px rgba(255, 107, 107, 0.6);
+        }
+
+        /* LLM Feature Specific Styles */
+        .llm-feature-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 25px;
+            padding: 40px;
+            margin-bottom: 40px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 100%;
+        }
+
+        .llm-feature-section h2 {
+            font-size: 2.2em;
+            color: #4A4A4A;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .llm-feature-section textarea {
+            width: 100%;
+            padding: 20px;
+            border: 2px solid #ddd;
+            border-radius: 18px;
+            font-size: 1.15em;
+            margin-bottom: 25px;
+            resize: vertical;
+            min-height: 100px;
+            box-shadow: inset 0 3px 8px rgba(0,0,0,0.1);
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .llm-feature-section textarea:focus {
+            border-color: #667eea;
+            box-shadow: inset 0 3px 8px rgba(0,0,0,0.1), 0 0 15px rgba(102, 126, 234, 0.4);
+            outline: none;
+        }
+
+        .llm-feature-section button {
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: #fff;
+            border: none;
+            padding: 18px 35px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1.3em;
+            font-weight: bold;
+            transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            box-shadow: 0 8px 20px rgba(255, 215, 0, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin: 0 auto;
+        }
+
+        .llm-feature-section button:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 12px 30px rgba(255, 215, 0, 0.6);
+        }
+
+        .llm-result-area {
+            margin-top: 30px;
+            padding: 25px;
+            background: #f7f9fc;
+            border-radius: 18px;
+            border: 1px solid #e8e8e8;
+            text-align: left;
+            min-height: 120px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2em;
+            line-height: 1.8;
+        }
+
+        .llm-result-area.loading {
+            color: #667eea;
+            font-style: italic;
+        }
+
+        .word-pos-pair {
+            display: inline-block;
+            background-color: #eaf2ff;
+            border-radius: 10px;
+            padding: 10px 15px;
+            margin: 5px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+
+        .word-pos-pair:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.12);
+            background-color: #dbe8ff;
+        }
+
+        .word-text {
+            font-weight: bold;
+            color: #333;
+            margin-right: 8px;
+        }
+
+        .pos-tag {
+            font-size: 0.8em;
+            color: #667eea;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        /* Modal Styles for Word Details */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.75);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.4s ease, visibility 0.4s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+            border-radius: 25px;
+            padding: 45px; /* More padding */
+            max-width: 650px; /* Slightly wider */
+            width: 90%;
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.3);
+            position: relative;
+            animation: modalScaleIn 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            color: #333;
+            max-height: 85vh;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        @keyframes modalScaleIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 2.2em;
+            cursor: pointer;
+            color: #888;
+            transition: color 0.3s ease, transform 0.3s ease;
+            padding: 5px;
+            line-height: 1;
+            border-radius: 50%;
+        }
+
+        .modal-close-btn:hover {
+            color: #ff6b6b;
+            transform: rotate(90deg) scale(1.1);
+        }
+
+        .modal-title {
+            font-size: 2.8em;
+            color: #667eea;
+            margin-bottom: 25px;
+            text-align: center;
+            text-transform: capitalize;
+            border-bottom: 3px solid rgba(102, 126, 234, 0.3);
+            padding-bottom: 15px;
+        }
+
+        .modal-section {
+            margin-bottom: 25px;
+        }
+
+        .modal-section h4 {
+            font-size: 1.5em;
+            color: #4A4A4A;
+            margin-bottom: 12px;
+            border-left: 6px solid #FFD700;
+            padding-left: 12px;
+        }
+
+        .modal-text {
+            font-size: 1.15em;
+            line-height: 1.7;
+            color: #555;
+            margin-bottom: 12px;
+        }
+
+        .modal-list {
+            list-style: none;
+            padding-left: 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .modal-list-item {
+            background-color: #e6f7ff;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 1em;
+            color: #5c85d6;
+            font-weight: 500;
+            border: 1px solid #cceeff;
+        }
+
+        .modal-loading {
+            text-align: center;
+            font-style: italic;
+            color: #667eea;
+            padding: 30px;
+            font-size: 1.2em;
+        }
+
+        .generate-sentence-btn {
+            background: linear-gradient(135deg, #5de6de 0%, #45b7d1 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 15px rgba(78, 205, 196, 0.4);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 15px;
+        }
+
+        .generate-sentence-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(78, 205, 196, 0.6);
+        }
+
+        #exampleSentenceArea {
+            margin-top: 20px;
+            padding: 15px;
+            background: #eef1f5;
+            border-radius: 12px;
+            border-left: 5px solid #4ecdc4;
+            font-style: italic;
+            color: #333;
+        }
+        
+        /* New AI Playground Styles */
+        .ai-playground-section {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%) !important;
+        }
+        .generate-examples-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            display: inline-block;
+            margin-top: 15px;
+        }
+        .generate-examples-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+        .examples-result-area {
+            margin-top: 20px;
+            text-align: left;
+            color: white;
+        }
+        .examples-result-area .trick-item { /* Reusing styles */
+            background: rgba(255, 255, 255, 0.2);
+            border-left-color: #fff;
+        }
+
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            body { padding: 20px; }
+            .header h1 { font-size: 3em; }
+            .parts-grid { grid-template-columns: 1fr; gap: 30px; }
+            .main-content { padding: 30px; }
+            .llm-feature-section { padding: 25px; }
+            .modal-content { padding: 30px; width: 95%; }
+            .modal-title { font-size: 2.2em; }
+        }
+
+        @media (max-width: 480px) {
+            body { padding: 15px; }
+            .header { padding: 40px 20px; }
+            .header h1 { font-size: 2.5em; }
+            .main-content { padding: 20px; }
+            .part-card { padding: 25px; }
+            .part-card h2 { font-size: 2em; }
+            .part-card p { font-size: 1.1em; }
+            .llm-feature-section h2 { font-size: 1.8em; }
+            .modal-content { padding: 25px 20px; }
+            .modal-title { font-size: 1.8em; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Main Header Section -->
+        <div class="header" id="mainHeader">
+            <h1>Parts of Speech Explorer</h1>
+            <div class="click-hint" id="clickHint">🚀 Click to explore the magical world of grammar! ✨</div>
+        </div>
+        
+        <!-- Main Content Area (initially hidden) -->
+        <div class="main-content" id="mainContent">
+            <button class="back-btn" onclick="goBack()">← Back to Title</button>
+            
+            <!-- LLM Feature Section -->
+            <div class="llm-feature-section">
+                <h2>Analyze Your Sentence ✨</h2>
+                <textarea id="sentenceInput" placeholder="Type a sentence here, e.g., 'The quick brown fox jumps over the lazy dog.'"></textarea>
+                <button id="analyzeSentenceBtn">Analyze Sentence</button>
+                <div class="llm-result-area" id="llmResultArea">
+                    <!-- LLM analysis results will be displayed here -->
+                </div>
+            </div>
+
+            <div class="parts-grid" id="partsGrid">
+                <!-- Parts of speech cards will be dynamically inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Word Details -->
+    <div class="modal-overlay" id="wordDetailsModal">
+        <div class="modal-content">
+            <button class="modal-close-btn" id="closeModalBtn">&times;</button>
+            <h3 class="modal-title" id="modalWordTitle"></h3>
+            <div class="modal-body" id="modalBodyContent">
+                <!-- Word details (definition, synonyms, antonyms) will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data for each part of speech (hardcoded in this version)
+        const partsOfSpeech = {
+            "NOUN": {
+                emoji: "🏷️",
+                description: "A word that names a person, place, thing, or idea - the building blocks of sentences.",
+                types: [
+                    { 
+                        name: "Proper Noun", 
+                        example: "John, London, Microsoft, Christmas",
+                        definition: "Names of specific people, places, organizations, or things. Always capitalized.",
+                        examples: "Examples: 'Sarah' (person), 'Paris' (place), 'Google' (organization), 'Monday' (day), 'Coca-Cola' (product).",
+                        usage: "Refers to unique entities. Never preceded by an article (a, an, the) unless it's part of the name (e.g., 'The New York Times')."
+                    },
+                    { 
+                        name: "Common Noun", 
+                        example: "city, dog, book, happiness",
+                        definition: "General names for people, places, things, or concepts. Not capitalized unless at the beginning of a sentence.",
+                        examples: "Examples: 'teacher', 'school', 'computer', 'love', 'music'.",
+                        usage: "Refers to a class of entities, not a specific one. Can be preceded by articles (a, an, the)."
+                    },
+                    { 
+                        name: "Abstract Noun", 
+                        example: "freedom, happiness, courage, wisdom",
+                        definition: "Names ideas, emotions, qualities, or concepts that cannot be perceived by the five senses.",
+                        examples: "Examples: 'beauty', 'truth', 'anger', 'democracy', 'friendship'.",
+                        usage: "Represents intangible concepts. Often formed from adjectives (e.g., beautiful -> beauty) or verbs (e.g., know -> knowledge)."
+                    },
+                    { 
+                        name: "Concrete Noun", 
+                        example: "pen, tree, coffee, music",
+                        definition: "Names things you can see, hear, touch, smell, or taste; perceived through the five senses.",
+                        examples: "Examples: 'chair', 'flower', 'thunder', 'perfume', 'pizza'.",
+                        usage: "Refers to physical, tangible entities."
+                    },
+                    { 
+                        name: "Countable Noun", 
+                        example: "apple/apples, car/cars, idea/ideas",
+                        definition: "Nouns that can be counted individually and have both singular and plural forms.",
+                        examples: "Examples: 'one book' / 'two books', 'a student' / 'many students', 'an orange' / 'three oranges'.",
+                        usage: "Can use numbers and articles (a, an, the) with them. Plural forms often end in -s or -es."
+                    },
+                    { 
+                        name: "Uncountable Noun", 
+                        example: "milk, air, information, furniture",
+                        definition: "Nouns that cannot be counted individually or do not typically have plural forms.",
+                        examples: "Examples: 'water', 'rice', 'homework', 'advice', 'traffic', 'money'.",
+                        usage: "Always treated as singular. Use quantifiers like 'some', 'much', 'little', or 'a lot of' instead of numbers. Do not use 'a' or 'an' with them."
+                    },
+                    { 
+                        name: "Collective Noun", 
+                        example: "team, family, flock, committee",
+                        definition: "Names a group of people, animals, or things as a single unit.",
+                        examples: "Examples: 'army' (of soldiers), 'class' (of students), 'jury' (of peers), 'audience' (of spectators), 'staff' (of employees), 'pride' (of lions).",
+                        usage: "Can be treated as singular or plural depending on whether the group is acting as one unit or as individuals. (e.g., 'The team is playing well.' vs. 'The team are arguing among themselves.')"
+                    }
+                ],
+                tricks: [
+                    "**The 'The' Test:** If you can put 'the' in front of it (e.g., 'the dog', 'the freedom'), it's highly likely a noun.",
+                    "**The 'What/Who' Test:** Ask 'What is it?' or 'Who is it?' – the answer is often a noun (e.g., 'What is that?', 'It's a 'book'.).",
+                    "**Pluralization:** Nouns can often be made plural (e.g., 'cat' -> 'cats', 'box' -> 'boxes').",
+                    "**Possession:** Nouns can show possession (e.g., 'dog's bone', 'children's toys').",
+                    "**Articles:** Look for articles (a, an, the) immediately before the word – they almost always precede nouns.",
+                    "**Sentence Role:** Nouns commonly act as the subject (who or what the sentence is about) or object (who or what receives the action) of a sentence.",
+                    "**Adjective Modifiers:** Nouns are frequently modified by adjectives (e.g., 'the *red* car', 'a *beautiful* day').",
+                    "**Person, Place, Thing, Idea:** The classic and simplest definition to remember."
+                ]
+            },
+            "PRONOUN": {
+                emoji: "🔄",
+                description: "Words that replace nouns to avoid repetition and make sentences flow better.",
+                types: [
+                    { 
+                        name: "Personal Pronouns", 
+                        example: "I, you, he, she, it, we, they, me, him, her, us, them",
+                        definition: "Refer to specific people or things in a conversation.",
+                        examples: "Subject: 'I', 'you', 'he', 'she', 'it', 'we', 'they' (perform the action) | Object: 'me', 'you', 'him', 'her', 'it', 'us', 'them' (receive the action).",
+                        usage: "Change form (case) based on their grammatical role (subject or object) in the sentence. They must agree in number and gender with the noun they replace (antecedent)."
+                    },
+                    { 
+                        name: "Possessive Pronouns", 
+                        example: "mine, yours, his, hers, ours, theirs, its",
+                        definition: "Show ownership or possession without needing a noun immediately after them.",
+                        examples: "That book is 'mine'. The red car is 'yours'. The house is 'theirs'. 'Its' (referring to an animal or thing) is also a possessive pronoun.",
+                        usage: "Stand alone in the sentence, indicating who something belongs to. Do not use apostrophes with them."
+                    },
+                    { 
+                        name: "Reflexive Pronouns", 
+                        example: "myself, yourself, himself, herself, itself, ourselves, yourselves, themselves",
+                        definition: "Refer back to the subject of the sentence, indicating that the subject is both performing and receiving the action.",
+                        examples: "I taught 'myself'. She hurt 'herself'. We prepared 'ourselves' for the exam.",
+                        usage: "End in -self (singular) or -selves (plural). Cannot be used as a subject of a sentence. Often used to emphasize the subject."
+                    },
+                    { 
+                        name: "Relative Pronouns", 
+                        example: "who, whom, whose, which, that",
+                        definition: "Introduce a dependent (relative) clause and connect it to an independent clause, providing more information about a noun or pronoun.",
+                        examples: "The person 'who' called. The book 'that' I read. The house 'which' burned down. 'Whose' car is this?.",
+                        usage: "They act as both a pronoun and a conjunction, linking parts of a sentence. 'Who' and 'whom' are for people, 'which' for things, 'that' for both, 'whose' for possession."
+                    },
+                    { 
+                        name: "Demonstrative Pronouns", 
+                        example: "this, that, these, those",
+                        definition: "Point to specific things or people, indicating proximity or distance.",
+                        examples: "'This' is my book (near). 'That' belongs to her (far). 'These' are delicious (near, plural). 'Those' are ripe (far, plural).",
+                        usage: "Act as subjects or objects in a sentence. Can also function as demonstrative adjectives if followed by a noun (e.g., 'this book')."
+                    },
+                    { 
+                        name: "Indefinite Pronouns", 
+                        example: "someone, anyone, everybody, nothing, few, many, all, none",
+                        definition: "Refer to non-specific people or things, or an unspecified number or amount.",
+                        examples: "'Everyone' is here. 'Something' is wrong. 'Nobody' knows. 'Many' came to the party. 'All' is well.",
+                        usage: "Do not refer to specific individuals or items. Can be singular or plural, which affects verb agreement."
+                    },
+                    { 
+                        name: "Interrogative Pronouns", 
+                        example: "who, what, which, whom, whose",
+                        definition: "Used to ask questions about people or things.",
+                        examples: "'Who' is coming? 'What' happened? 'Which' do you prefer? 'Whom' did you see? 'Whose' is this?",
+                        usage: "Stand alone to form questions. 'Whom' is used for the object of a verb or preposition."
+                    }
+                ],
+                tricks: [
+                    "**Replacement Test:** Pronouns replace nouns to avoid repetition. Try replacing the pronoun with a noun – if it makes sense, it's likely a pronoun.",
+                    "**Case Sensitivity (Personal):1** Personal pronouns change form (e.g., 'I' vs. 'me', 'he' vs. 'him') depending on their role as subject or object.",
+                    "**Self/Selves Endings:** Reflexive pronouns always end in '-self' (singular) or '-selves' (plural).",
+                    "**No Apostrophes for Possession:** Possessive pronouns ('mine', 'yours', 'hers', 'its', 'ours', 'theirs') do NOT use apostrophes, unlike possessive nouns.",
+                    "**Antecedent Agreement:** A pronoun must agree in number (singular/plural) and gender (masculine/feminine/neutral) with the noun it refers back to (its antecedent).",
+                    "**Question Words:** Interrogative pronouns ('who', 'what', 'which', 'whom', 'whose') are used to start questions and stand alone.",
+                    "**Linking Clauses:** Relative pronouns ('who', 'which', 'that') introduce clauses that give more information about a noun."
+                ]
+            },
+            "VERB": {
+                emoji: "⚡",
+                description: "Action words that show what someone or something does, or states of being.",
+                types: [
+                    { 
+                        name: "Action Verb", 
+                        example: "run, jump, write, think, sing, eat, discover",
+                        definition: "Expresses a physical or mental action performed by the subject.",
+                        examples: "Physical: 'dance', 'swim', 'throw', 'walk', 'build' | Mental: 'believe', 'remember', 'decide', 'understand', 'imagine'.",
+                        usage: "Answers the question 'What is someone/something doing?'."
+                    },
+                    { 
+                        name: "Linking Verb", 
+                        example: "be (am, is, are, was, were), seem, become, appear, feel, look, smell, taste, sound",
+                        definition: "Connects the subject of the sentence to a noun, pronoun, or adjective that renames or describes the subject.",
+                        examples: "She 'is' happy. The cake 'smells' good. He 'became' a doctor. They 'were' tired. It 'looks' strange.",
+                        usage: "Does not show action. Instead, it creates an equation: Subject = Noun/Adjective. If you can replace it with 'is', 'am', 'are', 'was', or 'were' and the sentence still makes sense, it's likely a linking verb."
+                    },
+                    { 
+                        name: "Auxiliary/Helping Verb", 
+                        example: "is, have, will, do, can, must, should, might, could",
+                        definition: "Helps the main verb express tense, mood, or voice. They precede the main verb in a verb phrase.",
+                        examples: "I 'am' reading. She 'has' finished. They 'will' arrive. 'Do' you understand? We 'should' go.",
+                        usage: "Always used with a main verb. Common helpers include forms of 'be', 'have', and 'do', as well as modals like 'can', 'may', 'will', 'should', etc."
+                    },
+                    { 
+                        name: "Modal Verb", 
+                        example: "can, could, may, might, must, should, will, would, shall, ought to",
+                        definition: "A type of auxiliary verb that expresses possibility, necessity, permission, ability, or obligation.",
+                        examples: "You 'can' do it. She 'should' study. We 'might' leave early. He 'must' finish the report.",
+                        usage: "Always followed by the base form of another verb (without 'to', except for 'ought to'). They do not change form for different subjects (e.g., 'he can', not 'he cans')."
+                    },
+                    { 
+                        name: "Transitive Verb", 
+                        example: "eat (an apple), read (a book), throw (a ball), buy, write, make",
+                        definition: "An action verb that requires a direct object to complete its meaning. The action is transferred from the subject to the object.",
+                        examples: "I 'bought' (what?) 'a car'. She 'wrote' (what?) 'a letter'. He 'kicked' (what?) 'the ball'.",
+                        usage: "If you can ask 'what?' or 'whom?' after the verb and get an answer, it's transitive. If there's no direct object, the meaning is incomplete."
+                    },
+                    { 
+                        name: "Intransitive Verb", 
+                        example: "sleep, go, arrive, laugh, exist, run, die",
+                        definition: "An action verb that does not require a direct object to complete its meaning. The action is complete in itself.",
+                        examples: "The baby 'sleeps'. We 'arrived' early. Birds 'fly'. She 'laughed' loudly.",
+                        usage: "Makes sense by itself without needing an object to receive the action. Can be followed by adverbs or prepositional phrases, but not direct objects."
+                    }
+                ],
+                tricks: [
+                    "**The 'What is Happening?' Test:** Ask 'What is happening?' or 'What is being done?' in the sentence – the answer is usually the verb.",
+                    "**Tense Change:** Verbs can change tense to show when an action happened (e.g., 'walk', 'walked', 'walking', 'will walk'). This is a strong indicator.",
+                    "**To-Infinitive:** Try putting 'to' in front of the word (e.g., 'to run', 'to think'). If it makes sense as an action or state, it's a verb.",
+                    "**Subject-Verb Agreement:** Verbs must agree with their subject in number (singular/plural) (e.g., 'he walks' vs. 'they walk').",
+                    "**Action vs. Linking:** Differentiate between action verbs (showing doing) and linking verbs (showing being or state of being). Linking verbs can often be replaced by a form of 'to be'.",
+                    "**Modified by Adverbs:** Verbs are often modified by adverbs, which tell how, when, where, why, or to what extent the action occurs (e.g., 'runs *quickly*', 'will arrive *soon*').",
+                    "**Phrasal Verbs:** Be aware of phrasal verbs, which are verbs combined with prepositions or adverbs to create new meanings (e.g., 'look up', 'turn down')."
+                ]
+            },
+            "ADJECTIVE": {
+                emoji: "🎨",
+                description: "Descriptive words that modify nouns and pronouns, adding color and detail.",
+                types: [
+                    { 
+                        name: "Descriptive Adjective", 
+                        example: "beautiful, red, tall, smooth, delicious, happy, old",
+                        definition: "Describes qualities, characteristics, or features of a noun or pronoun.",
+                        examples: "Color: 'red', 'blue', 'green' | Size: 'big', 'tiny', 'enormous' | Shape: 'round', 'square', 'triangular' | Quality: 'kind', 'brave', 'soft', 'noisy'.",
+                        usage: "Answers the question 'What kind?' about a noun. Can usually be placed before the noun ('a *red* car') or after a linking verb ('The car is *red*')."
+                    },
+                    { 
+                        name: "Quantitative Adjective", 
+                        example: "many, few, some, several, enough, all, no",
+                        definition: "Tells how much or how many of something, without being specific numbers.",
+                        examples: "Amount: 'much' (uncountable), 'little' (uncountable), 'some', 'all', 'no' | Number: 'many' (countable), 'few', 'several'.",
+                        usage: "Precedes the noun it modifies. Distinguish from quantitative pronouns (which stand alone)."
+                    },
+                    { 
+                        name: "Numerical Adjective",
+                        example: "one, two, first, second, double, triple",
+                        definition: "Indicates exact numbers (cardinal) or order (ordinal).",
+                        examples: "Cardinal: 'one' apple, 'two' cars, 'hundred' years | Ordinal: 'first' place, 'second' chance, 'third' time.",
+                        usage: "Always precede the noun. Provide specific counts or positions."
+                    },
+                    { 
+                        name: "Demonstrative Adjective", 
+                        example: "this book, that car, these flowers, those ideas",
+                        definition: "Points out specific nouns, indicating proximity or distance.",
+                        examples: "Near (singular): 'this' house, 'this' idea | Near (plural): 'these' books, 'these' friends | Far (singular): 'that' mountain, 'that' problem | Far (plural): 'those' people, 'those' thoughts.",
+                        usage: "Always precede and modify a noun. Contrast with demonstrative pronouns which stand alone."
+                    },
+                    { 
+                        name: "Possessive Adjective", 
+                        example: "my, your, his, her, its, our, their",
+                        definition: "Shows ownership or relationship and always precedes a noun.",
+                        examples: "'My' car, 'your' book, 'his' house, 'her' cat, 'its' tail, 'our' team, 'their' children.",
+                        usage: "Acts like an adjective by modifying the noun that follows it. Do not use apostrophes with them."
+                    },
+                    { 
+                        name: "Interrogative Adjective", 
+                        example: "which, what, whose (before a noun)",
+                        definition: "Used in questions to modify a noun.",
+                        examples: "'Which' book? 'What' color? 'Whose' pen?",
+                        usage: "Must be followed immediately by a noun in a question. Contrast with interrogative pronouns which stand alone."
+                    },
+                    { 
+                        name: "Comparative & Superlative Adjectives", 
+                        example: "taller/tallest, more beautiful/most beautiful, better/best",
+                        definition: "Comparative adjectives compare two things; superlative adjectives compare three or more things.",
+                        examples: "Comparative: 'bigger', 'faster', 'more interesting', 'less difficult' | Superlative: 'biggest', 'fastest', 'most interesting', 'least difficult'.",
+                        usage: "Used to show degrees of comparison. Most one- or two-syllable adjectives add -er/-est; longer ones use 'more/most' or 'less/least'."
+                    }
+                ],
+                tricks: [
+                    "**The 'Which One/What Kind/How Many?' Test:** Ask these questions about a noun – the answer is often an adjective (e.g., 'What kind of car?', 'A *red* car.').",
+                    "**Position in Sentence:** Adjectives usually come before the noun they describe (e.g., 'a *happy* child'). They can also follow linking verbs (e.g., 'The child is *happy*').",
+                    "**Comparability:** Most adjectives can be compared (e.g., 'big', 'bigger', 'biggest'; 'beautiful', 'more beautiful', 'most beautiful').",
+                    "**Removal Test:** If you remove the word, does the sentence still make sense, albeit with less detail? If so, it's likely an adjective.",
+                    "**Multiple Adjectives:** Several adjectives can modify a single noun (e.g., 'a *large, old, wooden* table').",
+                    "**Adverbs Modify Adjectives:** Adverbs can often modify adjectives, intensifying or qualifying their meaning (e.g., 'a *very* tall building', 'an *extremely* difficult task').",
+                    "**Ends in -ful, -less, -able, -ous, -ish, etc.:** Many adjectives have common suffixes, though this isn't a definitive rule."
+                ]
+            },
+            "ADVERB": {
+                emoji: "🎯",
+                description: "Modifying words that describe verbs, adjectives, or other adverbs.",
+                types: [
+                    { 
+                        name: "Adverb of Manner", 
+                        example: "quickly, carefully, beautifully, loudly, softly, smoothly",
+                        definition: "Describes *how* an action is performed.",
+                        examples: "She sings 'beautifully'. He drives 'carefully'. They work 'quickly'. The baby slept 'soundly'.",
+                        usage: "Usually answers the question 'How?'. Many (but not all) end in -ly."
+                    },
+                    { 
+                        name: "Adverb of Time", 
+                        example: "now, yesterday, soon, already, never, always, tomorrow, recently",
+                        definition: "Tells *when* an action happens or *how often*.",
+                        examples: "I'll call you 'later'. She 'already' finished. We 'never' give up. He arrived 'yesterday'.",
+                        usage: "Answers the questions 'When?' or 'How often?'."
+                    },
+                    { 
+                        name: "Adverb of Place", 
+                        example: "here, there, everywhere, inside, outside, upstairs, downstairs, away",
+                        definition: "Tells *where* an action happens.",
+                        examples: "Come 'here'. Look 'everywhere'. Stay 'inside'. Go 'outside'. The ball rolled 'away'.",
+                        usage: "Answers the question 'Where?'."
+                    },
+                    { 
+                        name: "Adverb of Frequency", 
+                        example: "always, often, sometimes, rarely, never, usually, seldom",
+                        definition: "Tells *how often* an action occurs.",
+                        examples: "I 'always' brush my teeth. She 'sometimes' cooks. We 'rarely' argue. They 'usually' go for a walk.",
+                        usage: "Answers the question 'How often?'. Often placed before the main verb, or after auxiliary/linking verbs."
+                    },
+                    { 
+                        name: "Adverb of Degree", 
+                        example: "very, quite, extremely, almost, too, really, hardly, utterly",
+                        definition: "Shows the intensity or extent of an action, adjective, or another adverb.",
+                        examples: "'Very' hot, 'quite' tired, 'extremely' difficult, 'almost' finished. He 'really' likes ice cream.",
+                        usage: "Answers the questions 'To what extent?' or 'How much?'. They often precede the word they modify."
+                    },
+                     { 
+                        name: "Conjunctive Adverb", 
+                        example: "however, therefore, moreover, consequently, indeed, otherwise",
+                        definition: "Connects two independent clauses, showing a relationship between them (like a conjunction, but functions adverbially).",
+                        examples: "It was raining; 'however', we still went out. She was tired; 'therefore', she went to bed early.",
+                        usage: "Often follow a semicolon and are followed by a comma when connecting two independent clauses."
+                    }
+                ],
+                tricks: [
+                    "**The '-ly' Ending:** Many adverbs (especially adverbs of manner) end in -ly (e.g., 'quickly', 'slowly', 'carefully'). However, *not all* words ending in -ly are adverbs (e.g., 'lovely' is an adjective), and *not all* adverbs end in -ly (e.g., 'fast', 'hard', 'well', 'always').",
+                    "**The 'How/When/Where/Why/To What Extent?' Test:** Adverbs answer these questions about the verb, adjective, or other adverb they modify.",
+                    "**Flexibility in Position:** Adverbs can often be moved around in a sentence without changing its core meaning significantly (e.g., 'She *quickly* ran' vs. 'She ran *quickly*').",
+                    "**Modifying Verbs:** The primary role of adverbs is to describe verbs (e.g., 'He sings *loudly*').",
+                    "**Modifying Adjectives:** Adverbs can intensify or qualify adjectives (e.g., 'a *very* tall building', 'an *extremely* good idea').",
+                    "**Modifying Other Adverbs:** Adverbs can also modify other adverbs (e.g., 'He runs *very quickly*').",
+                    "**Sentence Modifiers:** Some adverbs can modify an entire sentence, expressing a general comment or attitude (e.g., '*Fortunately*, we arrived on time.')."
+                ]
+            },
+            "PREPOSITION": {
+                emoji: "🔗",
+                description: "Words that show the relationship between a noun or pronoun (its object) and other words in a sentence.",
+                types: [
+                    {
+                        name: "Preposition of Time",
+                        example: "at, on, in, before, after, during, until, since, for, by",
+                        definition: "Indicates when something happens or its duration.",
+                        examples: "'at' 5 PM, 'on' Monday, 'in' 2024, 'before' breakfast, 'after' the movie, 'during' the show, 'until' midnight, 'since' morning, 'for' two hours, 'by' tomorrow.",
+                        usage: "Used to specify a point in time, a period, or a deadline. They introduce a prepositional phrase that functions as an adverbial modifier of time."
+                    },
+                    {
+                        name: "Preposition of Place",
+                        example: "in, on, at, under, over, beside, near, between, among, above, below",
+                        definition: "Indicates where something is located or positioned.",
+                        examples: "'in' the box, 'on' the table, 'at' the corner, 'under' the bed, 'over' the rainbow, 'beside' the tree, 'near' the park, 'between' two houses, 'among' the crowd, 'above' the clouds, 'below' the surface.",
+                        usage: "Used to specify a location or position. They introduce a prepositional phrase that functions as an adverbial modifier of place."
+                    },
+                    {
+                        name: "Preposition of Direction/Movement",
+                        example: "to, from, into, out of, through, across, along, toward, onto, off",
+                        definition: "Indicates movement towards or away from something, or the path taken.",
+                        examples: "go 'to' the store, run 'from' the dog, dive 'into' the water, climb 'out of' the building, walk 'through' the forest, swim 'across' the lake, stroll 'along' the river, head 'toward' home, jump 'onto' the stage, step 'off' the curb.",
+                        usage: "Used to specify the direction of movement. They introduce a prepositional phrase that often functions as an adverbial modifier of direction."
+                    },
+                    {
+                        name: "Preposition of Instrument/Means",
+                        example: "with, by, using",
+                        definition: "Indicates the tool or method used to perform an action.",
+                        examples: "cut 'with' a knife, travel 'by' car, learn 'using' an app.",
+                        usage: "Explains how an action is done."
+                    },
+                    {
+                        name: "Preposition of Cause/Reason",
+                        example: "for, because of, due to, on account of",
+                        definition: "Indicates the reason or cause for something.",
+                        examples: "famous 'for' his art, absent 'because of' illness, delayed 'due to' traffic.",
+                        usage: "Explains why something happens."
+                    }
+                ],
+                tricks: [
+                    "**The 'Box' Test:** Imagine a box. If the word can show a relationship to that box (e.g., 'in' the box, 'on' the box, 'under' the box, 'around' the box, 'through' the box, 'to' the box), it's very likely a preposition.",
+                    "**Always with an Object:** A preposition is almost always followed by a noun or pronoun, which is called its 'object'. The combination forms a 'prepositional phrase' (e.g., 'on *the table*', 'to *him*').",
+                    "**Small Words:** Many prepositions are small, common words (e.g., 'in', 'on', 'at', 'of', 'to', 'from', 'with').",
+                    "**Relationship Showers:** Their main job is to show relationships of time, place, direction, or other connections between words in a sentence.",
+                    "**Position:** They typically come before the noun or pronoun they relate to the rest of the sentence."
+                ]
+            },
+            "CONJUNCTION": {
+                emoji: "🤝",
+                description: "Words that connect words, phrases, clauses, or sentences, creating more complex structures.",
+                types: [
+                    {
+                        name: "Coordinating Conjunctions",
+                        example: "for, and, nor, but, or, yet, so (FANBOYS)",
+                        definition: "Connect two words, phrases, or independent clauses that are of equal grammatical rank.",
+                        examples: "I like tea 'and' coffee. He is tired, 'but' he will finish. She didn't study, 'so' she failed.",
+                        usage: "Each 'FANBOYS' word has a specific meaning: For (reason), And (addition), Nor (negative alternative), But (contrast), Or (choice), Yet (contrast/despite), So (result). Used with a comma when joining two independent clauses."
+                    },
+                    {
+                        name: "Subordinating Conjunctions",
+                        example: "because, since, although, while, if, when, where, as, unless, until, before, after, that",
+                        definition: "Connect a dependent (subordinate) clause to an independent clause, showing a relationship of cause, effect, time, condition, contrast, etc.",
+                        examples: "I am late 'because' there was traffic. 'Although' it was raining, we went out. We'll leave 'when' you're ready. 'If' you study, you will pass.",
+                        usage: "Introduce dependent clauses, which cannot stand alone as a complete sentence. They define the relationship between the dependent and independent clause."
+                    },
+                    {
+                        name: "Correlative Conjunctions",
+                        example: "either/or, neither/nor, both/and, not only/but also, whether/or",
+                        definition: "Pairs of conjunctions that work together to connect grammatically equal elements in a sentence.",
+                        examples: "You can have 'either' tea 'or' coffee. 'Neither' the book 'nor' the movie was good. 'Both' John 'and' Mary attended. She is 'not only' smart 'but also' kind.",
+                        usage: "Always come in pairs and are used to create parallel structures, ensuring that the elements they connect are of the same grammatical type (e.g., noun with noun, verb with verb)."
+                    }
+                ],
+                tricks: [
+                    "**FANBOYS:** Memorize the acronym FANBOYS (For, And, Nor, But, Or, Yet, So) for coordinating conjunctions – these are the most common ones.",
+                    "**Connectors:** Conjunctions act as 'glue' words, joining ideas, words, or clauses together smoothly.",
+                    "**Dependent vs. Independent:** Subordinating conjunctions always introduce a dependent clause, which needs an independent clause to make complete sense.",
+                    "**Pairs:** Correlative conjunctions always come in pairs and are used to balance two ideas.",
+                    "**Punctuation:** Pay attention to punctuation; coordinating conjunctions often use a comma before them when joining independent clauses, while subordinating conjunctions may or may not require a comma depending on their placement."
+                ]
+            },
+            "INTERJECTION": {
+                emoji: "💥",
+                description: "Words or phrases that express strong emotion or surprise, often standing alone.",
+                types: [
+                    {
+                        name: "Mild Interjections",
+                        example: "well, oh, hmm, ah, alas, indeed, bravo",
+                        definition: "Express a mild emotion, hesitation, or are used as introductory words.",
+                        examples: "'Well', I think I'll go now. 'Oh', I didn't see you there. 'Hmm', that's interesting. 'Alas', it was not meant to be.",
+                        usage: "Usually set off by a comma from the rest of the sentence. They don't typically affect the grammatical structure of the sentence."
+                    },
+                    {
+                        name: "Strong Interjections",
+                        example: "Wow!, Ouch!, Hooray!, Help!, Bravo!, Gosh!, Eureka!",
+                        definition: "Express a strong emotion, surprise, pain, or excitement, and are more forceful.",
+                        examples: "'Wow!' That's amazing! 'Ouch!' That hurt! 'Hooray!' We won! 'Help!' I'm stuck!",
+                        usage: "Often followed by an exclamation mark and stand alone or at the beginning of a sentence. They are independent of the rest of the sentence's grammar."
+                    }
+                ],
+                tricks: [
+                    "**Stand-Alone:** They often stand alone or are set off by punctuation (exclamation mark or comma) at the beginning of a sentence.",
+                    "**Express Emotion:** Their primary function is to express a sudden feeling, emotion, or reaction rather than conveying factual information.",
+                    "**Grammatically Independent:** They are not grammatically related to the other words in the sentence; removing them does not change the sentence's grammatical correctness.",
+                    "**Sound Words:** Many interjections are sound-like words or exclamations (e.g., 'Bang!', 'Shhh!', 'Ugh!').",
+                    "**'Outbursts' of Expression:** Think of them as immediate, spontaneous outbursts of expression."
+                ]
+            },
+            "ARTICLE": {
+                emoji: "🔍",
+                description: "Words ($a$, $an$, $the$) that define whether a noun is specific or unspecific.",
+                types: [
+                    {
+                        name: "Definite Article",
+                        example: "the",
+                        definition: "Refers to a specific or already known noun.",
+                        examples: "'The' sun is shining. Please pass 'the' salt. 'The' dog that barked.",
+                        usage: "Used when the listener/reader knows exactly which person, place, or thing is being referred to. Can be used with both singular and plural, countable and uncountable nouns."
+                    },
+                    {
+                        name: "Indefinite Articles",
+                        example: "a, an",
+                        definition: "Refer to a non-specific or general noun.",
+                        examples: "I want 'a' apple (incorrect for 'an'). I want 'an' orange. She bought 'a' car.",
+                        usage: "'A' is used before words starting with a consonant sound. 'An' is used before words starting with a vowel sound. Used only with singular, countable nouns."
+                    }
+                ],
+                tricks: [
+                    "**Limited Set:** There are only three articles in English: 'a', 'an', and 'the'.",
+                    "**Precede Nouns:** They almost always come directly before a noun, or before an adjective that modifies a noun (e.g., 'a *big* house').",
+                    "**Specificity:** 'The' points to something specific; 'a' and 'an' point to something general or one of many.",
+                    "**Sound Rule ('a' vs. 'an'):** Use 'an' before a word that starts with a vowel *sound* (e.g., 'an honor', 'an hour') and 'a' before a word that starts with a consonant *sound* (e.g., 'a university', 'a unique idea').",
+                    "**Essential for Nouns:** Often, articles are essential for proper English grammar when using singular countable nouns."
+                ]
+            },
+            "DETERMINER": {
+                emoji: "📏",
+                description: "Words that introduce nouns and provide context, such as quantity, possession, or specificity. (Articles are a type of determiner).",
+                types: [
+                    {
+                        name: "Articles",
+                        example: "a, an, the",
+                        definition: "Specify whether a noun is specific or unspecific. (Covered separately as 'Article' part of speech).",
+                        examples: "See 'Article' section for detailed examples and usage.",
+                        usage: "Fundamental to noun phrases."
+                    },
+                    {
+                        name: "Demonstratives",
+                        example: "this, that, these, those",
+                        definition: "Point to specific nouns, indicating proximity or distance. (Similar to Demonstrative Pronouns, but modify nouns).",
+                        examples: "'This' book, 'that' car, 'these' flowers, 'those' ideas.",
+                        usage: "Always precede a noun. Answer 'Which one?'"
+                    },
+                    {
+                        name: "Possessives",
+                        example: "my, your, his, her, its, our, their",
+                        definition: "Show ownership or relationship, always preceding a noun. (Similar to Possessive Pronouns, but modify nouns).",
+                        examples: "'My' phone, 'your' bag, 'his' coat, 'her' dog, 'our' house, 'their' children.",
+                        usage: "Always precede a noun. Answer 'Whose?'"
+                    },
+                    {
+                        name: "Quantifiers",
+                        example: "many, few, some, any, much, little, all, every, no, several",
+                        definition: "Indicate the quantity or amount of a noun.",
+                        examples: "'Many' books, 'few' students, 'some' water, 'any' questions, 'much' effort, 'little' time, 'all' people, 'every' child, 'no' money, 'several' reasons.",
+                        usage: "Precede the noun. Can be used with countable or uncountable nouns depending on the specific quantifier."
+                    },
+                    {
+                        name: "Numbers (Cardinal & Ordinal)",
+                        example: "one, two, three, first, second, third",
+                        definition: "Specify an exact count or order.",
+                        examples: "'One' apple, 'two' cats, 'first' place, 'third' attempt.",
+                        usage: "Precede the noun to give precise numerical information."
+                    },
+                    {
+                        name: "Distributives",
+                        example: "each, every, either, neither",
+                        definition: "Refer to individual members within a group.",
+                        examples: "'Each' student, 'every' day, 'either' choice, 'neither' answer.",
+                        usage: "Always precede a singular noun."
+                    },
+                    {
+                        name: "Interrogatives",
+                        example: "which, what, whose",
+                        definition: "Used to ask questions about a noun. (Similar to Interrogative Pronouns, but modify nouns).",
+                        examples: "'Which' car? 'What' color? 'Whose' jacket?",
+                        usage: "Always precede a noun in a question."
+                    }
+                ],
+                tricks: [
+                    "**Noun Preceders:** Determiners always come *before* a noun or a noun phrase.",
+                    "**Context Providers:** They provide context to the noun, telling us if it's specific or general, how many, whose it is, etc.",
+                    "**Limited Set:** There's a closed class of determiners, meaning new ones are rarely added to the language.",
+                    "**Cannot Stand Alone:** Unlike pronouns, determiners cannot stand alone; they must be followed by a noun (e.g., you say 'my book', not just 'my').",
+                    "**Articles are Determiners:** Remember that 'a', 'an', and 'the' are the most common types of determiners."
+                ]
+            }
+        };
+
+        // Get DOM elements
+        const mainHeader = document.getElementById('mainHeader');
+        const mainContent = document.getElementById('mainContent');
+        const partsGrid = document.getElementById('partsGrid');
+        const sentenceInput = document.getElementById('sentenceInput');
+        const analyzeSentenceBtn = document.getElementById('analyzeSentenceBtn');
+        const llmResultArea = document.getElementById('llmResultArea');
+        const wordDetailsModal = document.getElementById('wordDetailsModal');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const modalWordTitle = document.getElementById('modalWordTitle');
+        const modalBodyContent = document.getElementById('modalBodyContent');
+        let activeCard = null; // To keep track of the currently open part-card
+
+        // Event listener for the main header to toggle content visibility
+        mainHeader.addEventListener('click', () => {
+            if (mainContent.style.display === 'none' || mainContent.style.display === '') {
+                mainContent.style.display = 'block'; // Show the main content
+                mainHeader.querySelector('.click-hint').style.display = 'none'; // Hide the hint
+                populatePartsGrid(); // Populate the grid with parts of speech cards
+            }
+        });
+
+        /**
+         * Function to go back to the main title screen.
+         */
+        function goBack() {
+            mainContent.style.display = 'none'; // Hide main content
+            mainHeader.querySelector('.click-hint').style.display = 'block'; // Show hint
+            partsGrid.innerHTML = ''; // Clear the parts grid
+            activeCard = null; // Reset active card
+            llmResultArea.innerHTML = ''; // Clear LLM results
+            sentenceInput.value = ''; // Clear sentence input
+            closeWordDetailsModal(); // Close modal if open
+        }
+
+        /**
+         * Populates the parts grid with interactive cards for each part of speech.
+         */
+        function populatePartsGrid() {
+            partsGrid.innerHTML = ''; // Clear existing cards
+            let index = 0;
+            // Iterate over the partsOfSpeech data
+            for (const partKey in partsOfSpeech) {
+                const data = partsOfSpeech[partKey];
+                const card = document.createElement('div');
+                card.classList.add('part-card');
+                
+                // Capitalize the first letter of the part of speech for display
+                const partDisplayName = partKey.charAt(0) + partKey.slice(1).toLowerCase();
+
+                card.innerHTML = `
+                    <h2><span class="emoji">${data.emoji}</span> ${partDisplayName}</h2>
+                    <p>${data.description}</p>
+                    <div class="part-details"></div> <!-- Container for detailed info -->
+                `;
+                
+                // Add click listener to each card to toggle its details
+                card.addEventListener('click', () => toggleCardDetails(card, partKey));
+                partsGrid.appendChild(card);
+            }
+        }
+
+        /**
+         * Toggles the visibility of a part-card's detailed information.
+         * Closes any currently open card before opening a new one.
+         * @param {HTMLElement} card - The clicked part-card element.
+         * @param {string} partKey - The key for the part of speech (e.g., "NOUN").
+         */
+        function toggleCardDetails(card, partKey) {
+            const details = card.querySelector('.part-details');
+
+            // If there's an active card and it's not the one being clicked, close it
+            if (activeCard && activeCard !== card) {
+                const oldDetails = activeCard.querySelector('.part-details');
+                oldDetails.style.display = 'none';
+                activeCard.classList.remove('expanded');
+                // Reset internal detail content display states for the old card
+                resetDetailContentVisibility(oldDetails);
+            }
+
+            // Toggle display for the clicked card's details
+            if (details.style.display === 'block') {
+                details.style.display = 'none';
+                card.classList.remove('expanded');
+                activeCard = null;
+                 // Reset internal detail content display states for the current card
+                resetDetailContentVisibility(details);
+            } else {
+                populateCardDetails(details, partKey); // Populate details if opening
+                details.style.display = 'block';
+                card.classList.add('expanded');
+                activeCard = card;
+            }
+        }
+
+        /**
+         * Resets the display style of all .detail-content and .type-details elements
+         * within a given parent element to 'none'.
+         * This ensures that when a card is closed, all its sub-sections are also closed.
+         * @param {HTMLElement} parentElement - The .part-details element.
+         */
+        function resetDetailContentVisibility(parentElement) {
+            parentElement.querySelectorAll('.detail-content').forEach(content => {
+                content.style.display = 'none';
+            });
+            parentElement.querySelectorAll('.type-details').forEach(details => {
+                details.style.display = 'none';
+            });
+        }
+
+
+        /**
+         * Populates the detail section of a part-card with types and tricks.
+         * Also attaches event listeners for toggling these sections.
+         * @param {HTMLElement} detailsContainer - The .part-details element to populate.
+         * @param {string} partKey - The key for the part of speech.
+         */
+        function populateCardDetails(detailsContainer, partKey) {
+            const data = partsOfSpeech[partKey];
+            const partDisplayName = partKey.charAt(0) + partKey.slice(1).toLowerCase();
+
+            detailsContainer.innerHTML = `
+                <div class="detail-section types-section">
+                    <h3>📚 Types of ${partDisplayName}</h3>
+                    <div class="detail-content types-content">
+                        <ul class="types-list">
+                            ${data.types.map(type => `
+                                <li class="type-item">
+                                    <div class="type-name">${type.name}</div>
+                                    <div class="type-example">e.g., ${type.example}</div>
+                                    <div class="type-details">
+                                        <p class="type-definition"><strong>Definition:</strong> ${type.definition}</p>
+                                        <p class="type-examples"><strong>Examples:</strong> ${type.examples}</p>
+                                        <p class="type-usage"><strong>Usage:</strong> ${type.usage}</p>
+                                    </div>
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                </div>
+                <div class="detail-section tricks-section">
+                    <h3>💡 Tricks to Identify</h3>
+                    <div class="detail-content tricks-content">
+                        <ul class="tricks-list">
+                            ${data.tricks.map(trick => `<li class="trick-item">${trick.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')}</li>`).join('')}
+                        </ul>
+                    </div>
+                </div>
+                <div class="detail-section ai-playground-section">
+                    <h3>🤖 AI Playground</h3>
+                    <div class="detail-content ai-playground-content">
+                        <p style="color:white; margin-bottom:15px;">Use AI to generate more examples and test your knowledge!</p>
+                        <button class="generate-examples-btn" data-pos="${partKey}">Generate Example Sentences</button>
+                        <div class="examples-result-area"></div>
+                    </div>
+                </div>
+            `;
+            
+            // Add click listeners to toggle detail-content for "Types of" and "Tricks to Identify"
+            const typesSection = detailsContainer.querySelector('.types-section');
+            const tricksSection = detailsContainer.querySelector('.tricks-section');
+            const aiSection = detailsContainer.querySelector('.ai-playground-section');
+            
+            [typesSection, tricksSection, aiSection].forEach(section => {
+                 section.addEventListener('click', (e) => {
+                    // Only toggle if the header is clicked, not content inside
+                    if (e.target === section || e.target.closest('h3')) {
+                        e.stopPropagation(); 
+                        const content = section.querySelector('.detail-content');
+                        content.style.display = content.style.display === 'block' ? 'none' : 'block';
+                    }
+                });
+            });
+            
+            detailsContainer.querySelectorAll('.type-item').forEach(item => {
+                item.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const details = item.querySelector('.type-details');
+                    details.style.display = details.style.display === 'block' ? 'none' : 'block';
+                });
+            });
+
+            const generateBtn = detailsContainer.querySelector('.generate-examples-btn');
+            generateBtn.addEventListener('click', (e) => {
+                e.stopPropagation(); // Prevent the card from closing
+                const pos = e.target.dataset.pos;
+                const resultArea = e.target.nextElementSibling;
+                generatePosExamples(pos, resultArea);
+            });
+
+            resetDetailContentVisibility(detailsContainer);
+        }
+
+        // --- Gemini API Integration for Sentence Analysis ---
+
+        /**
+         * Calls the Gemini API to analyze a sentence and identify parts of speech.
+         */
+        async function analyzeSentenceWithGemini() {
+            const sentence = sentenceInput.value.trim();
+            if (!sentence) {
+                llmResultArea.innerHTML = '<div style="color: #FF6347;">Please enter a sentence to analyze.</div>';
+                return;
+            }
+
+            llmResultArea.innerHTML = '<div class="loading">Analyzing... Please wait.</div>';
+            llmResultArea.classList.add('loading');
+            
+            try {
+                let chatHistory = [];
+                chatHistory.push({ 
+                    role: "user", 
+                    parts: [{ text: `Analyze the following sentence and identify the part of speech for each word. Provide the output as a JSON array of objects, where each object has 'word' and 'partOfSpeech' properties. Ensure punctuation marks are also included as separate 'words' if they are distinct tokens, and assign them a partOfSpeech like 'PUNCTUATION'.
+
+                    Sentence: "${sentence}"` }] 
+                });
+
+                const payload = {
+                    contents: chatHistory,
+                    generationConfig: {
+                        responseMimeType: "application/json",
+                        responseSchema: {
+                            type: "ARRAY",
+                            items: {
+                                type: "OBJECT",
+                                properties: {
+                                    "word": { "type": "STRING" },
+                                    "partOfSpeech": { "type": "STRING" }
+                                },
+                                required: ["word", "partOfSpeech"]
+                            }
+                        }
+                    }
+                };
+
+                const apiKey = ""; // Provided by the environment
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API call failed with status: ${response.status}`);
+                }
+
+                const result = await response.json();
+
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    
+                    const jsonString = result.candidates[0].content.parts[0].text;
+                    const parsedJson = JSON.parse(jsonString);
+                    renderAnalyzedSentence(parsedJson);
+
+                } else {
+                    llmResultArea.innerHTML = '<div style="color: #FF6347;">Error: Could not get a valid response from the LLM. Please try again.</div>';
+                    console.error('Unexpected LLM response structure:', result);
+                }
+
+            } catch (error) {
+                llmResultArea.innerHTML = '<div style="color: #FF6347;">Error analyzing sentence. Please check your input or try again later.</div>';
+                console.error('Error calling Gemini API:', error);
+            } finally {
+                llmResultArea.classList.remove('loading');
+            }
+        }
+
+        /**
+         * Renders the analyzed sentence with parts of speech.
+         */
+        function renderAnalyzedSentence(data) {
+            llmResultArea.innerHTML = '';
+            if (!Array.isArray(data) || data.length === 0) {
+                llmResultArea.innerHTML = '<div style="color: #FF6347;">No parts of speech found for the given sentence.</div>';
+                return;
+            }
+
+            data.forEach(item => {
+                const wordPosPair = document.createElement('span');
+                wordPosPair.classList.add('word-pos-pair');
+                wordPosPair.innerHTML = `
+                    <span class="word-text">${item.word}</span>
+                    <span class="pos-tag">${item.partOfSpeech}</span>
+                `;
+                wordPosPair.addEventListener('click', () => showWordDetails(item.word));
+                llmResultArea.appendChild(wordPosPair);
+            });
+        }
+
+        analyzeSentenceBtn.addEventListener('click', analyzeSentenceWithGemini);
+
+        // --- Gemini API Integration for Word Details ---
+
+        /**
+         * Displays the word details modal and fetches data for the clicked word.
+         */
+        function showWordDetails(word) {
+            // Do not show modal for punctuation
+            if (/[.,\/#!$%\^&\*;:{}=\-_`~()]/.test(word) && word.length === 1) {
+                return;
+            }
+            modalWordTitle.textContent = word;
+            modalBodyContent.innerHTML = '<div class="modal-loading">Loading definition...</div>';
+            wordDetailsModal.classList.add('active');
+            getWordDetailsWithGemini(word);
+        }
+
+        /**
+         * Closes the word details modal.
+         */
+        function closeWordDetailsModal() {
+            wordDetailsModal.classList.remove('active');
+            modalWordTitle.textContent = '';
+            modalBodyContent.innerHTML = '';
+        }
+
+        closeModalBtn.addEventListener('click', closeWordDetailsModal);
+        wordDetailsModal.addEventListener('click', (e) => {
+            if (e.target === wordDetailsModal) {
+                 closeWordDetailsModal();
+            }
+        });
+
+
+        /**
+         * Calls the Gemini API to get definition, synonyms, and antonyms for a word.
+         */
+        async function getWordDetailsWithGemini(word) {
+            try {
+                modalBodyContent.innerHTML = `<div class="modal-loading">Fetching details for "${word}"...</div>`;
+
+                let chatHistory = [];
+                chatHistory.push({
+                    role: "user",
+                    parts: [{ text: `Provide the definition, synonyms, and antonyms for the word '${word}'. If a category (synonyms, antonyms) has no results, provide an empty array. Respond as a JSON object with 'word', 'definition', 'synonyms' (array of strings), and 'antonyms' (array of strings).` }]
+                });
+
+                const payload = {
+                    contents: chatHistory,
+                    generationConfig: {
+                        responseMimeType: "application/json",
+                        responseSchema: {
+                            type: "OBJECT",
+                            properties: {
+                                "word": { "type": "STRING" },
+                                "definition": { "type": "STRING" },
+                                "synonyms": {
+                                    "type": "ARRAY",
+                                    "items": { "type": "STRING" }
+                                },
+                                "antonyms": {
+                                    "type": "ARRAY",
+                                    "items": { "type": "STRING" }
+                                }
+                            },
+                            required: ["word", "definition", "synonyms", "antonyms"]
+                        }
+                    }
+                };
+
+                const apiKey = ""; // Provided by the environment
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API call failed with status: ${response.status}`);
+                }
+
+                const result = await response.json();
+
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    
+                    const jsonString = result.candidates[0].content.parts[0].text;
+                    const parsedData = JSON.parse(jsonString);
+                    renderWordDetails(parsedData);
+
+                } else {
+                    modalBodyContent.innerHTML = '<div style="color: #FF6347;">Could not find details for this word.</div>';
+                    console.error('Unexpected LLM response structure for word details:', result);
+                }
+
+            } catch (error) {
+                modalBodyContent.innerHTML = '<div style="color: #FF6347;">Error fetching word details. Please try again.</div>';
+                console.error('Error calling Gemini API for word details:', error);
+            }
+        }
+
+        /**
+         * Renders the fetched word details into the modal body.
+         */
+        function renderWordDetails(data) {
+            modalBodyContent.innerHTML = '';
+            let hasContent = false;
+            let contentHtml = '';
+
+            if (data.definition) {
+                hasContent = true;
+                contentHtml += `
+                    <div class="modal-section">
+                        <h4>Definition</h4>
+                        <p class="modal-text">${data.definition}</p>
+                    </div>
+                `;
+            }
+
+            if (data.synonyms && data.synonyms.length > 0) {
+                hasContent = true;
+                contentHtml += `
+                    <div class="modal-section">
+                        <h4>Synonyms</h4>
+                        <ul class="modal-list">
+                            ${data.synonyms.map(syn => `<li class="modal-list-item">${syn}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+            }
+            
+            // Antonyms Section - always shows header
+            hasContent = true; // We always want to show the Antonym section header
+            contentHtml += `<div class="modal-section"><h4>Antonyms</h4>`;
+            if (data.antonyms && data.antonyms.length > 0) {
+                contentHtml += `
+                    <ul class="modal-list">
+                        ${data.antonyms.map(ant => `<li class="modal-list-item">${ant}</li>`).join('')}
+                    </ul>`;
+            } else {
+                contentHtml += `<p class="modal-text"><i>No antonyms found.</i></p>`;
+            }
+            contentHtml += `</div>`;
+            
+            // Add Example Sentence Feature
+            hasContent = true;
+            contentHtml += `
+                <div class="modal-section">
+                    <h4>Example Sentence</h4>
+                    <button class="generate-sentence-btn" data-word="${data.word}">
+                        <span>✨</span> Generate Example
+                    </button>
+                    <div id="exampleSentenceArea"></div>
+                </div>
+            `;
+
+            if (!hasContent) {
+                 modalBodyContent.innerHTML = '<div class="modal-loading" style="color: #555;">No detailed information found for this word.</div>';
+            } else {
+                modalBodyContent.innerHTML = contentHtml;
+            }
+
+            // Add event listener for the new button
+            const genBtn = modalBodyContent.querySelector('.generate-sentence-btn');
+            if(genBtn) {
+                 genBtn.addEventListener('click', (e) => {
+                    const word = e.target.closest('button').dataset.word;
+                    generateExampleSentence(word);
+                });
+            }
+        }
+
+        /**
+         * Calls Gemini to generate an example sentence for a word.
+         */
+        async function generateExampleSentence(word) {
+            const exampleArea = document.getElementById('exampleSentenceArea');
+            if (!exampleArea) return;
+
+            exampleArea.innerHTML = '<i>Generating...</i>';
+            
+            try {
+                let chatHistory = [];
+                chatHistory.push({ 
+                    role: "user", 
+                    parts: [{ text: `Create one clear and simple example sentence using the word "${word}". Just provide the sentence, nothing else.` }] 
+                });
+
+                const payload = { contents: chatHistory };
+                const apiKey = ""; // Provided by the environment
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`API call failed with status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    
+                    const sentence = result.candidates[0].content.parts[0].text;
+                    exampleArea.innerHTML = `"${sentence.trim()}"`;
+
+                } else {
+                   exampleArea.innerHTML = '<span style="color: #FF6347;">Could not generate sentence.</span>';
+                   console.error('Unexpected LLM response for sentence generation:', result);
+                }
+
+            } catch(error) {
+                exampleArea.innerHTML = '<span style="color: #FF6347;">Error generating sentence.</span>';
+                console.error('Error calling Gemini API for sentence generation:', error);
+            }
+        }
+
+        /**
+         * Calls Gemini to generate example sentences for a part of speech.
+         */
+        async function generatePosExamples(partOfSpeech, resultArea) {
+            resultArea.innerHTML = '<i>Generating examples...</i>';
+            
+            try {
+                const partDisplayName = partOfSpeech.charAt(0) + partOfSpeech.slice(1).toLowerCase();
+                let chatHistory = [];
+                chatHistory.push({ 
+                    role: "user", 
+                    parts: [{ text: `Generate 3 diverse and clear example sentences for the part of speech: ${partDisplayName}. In each sentence, wrap the word(s) that are a ${partDisplayName} in <strong> tags. For example, for Noun: 'The <strong>cat</strong> sat on the <strong>mat</strong>.'` }] 
+                });
+
+                const payload = { contents: chatHistory };
+                const apiKey = ""; // Provided by the environment
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`API call failed with status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    
+                    const text = result.candidates[0].content.parts[0].text;
+                    const formattedText = text.replace(/\n/g, '<br>');
+                    resultArea.innerHTML = `<ul class="tricks-list">${formattedText.split('<br>').map(line => line.trim() ? `<li class="trick-item">${line.replace(/^\d+\.\s*/, '')}</li>` : '').join('')}</ul>`;
+
+                } else {
+                   resultArea.innerHTML = '<span style="color: #FF6347;">Could not generate examples.</span>';
+                   console.error('Unexpected LLM response for PoS examples:', result);
+                }
+
+            } catch(error) {
+                resultArea.innerHTML = '<span style="color: #FF6347;">Error generating examples.</span>';
+                console.error('Error calling Gemini API for PoS examples:', error);
+            }
+        }
+
+
+    </script>
+</body>
+</html>
