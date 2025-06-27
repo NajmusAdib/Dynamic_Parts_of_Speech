@@ -30,6 +30,36 @@
 
 ---
 
+## 🧠 AI Integration
+
+The "Parts of Speech Explorer" significantly enhances the learning experience through its integration with the Google Gemini API. This allows the application to:
+
+* **Dynamic Sentence Analysis:** Provide real-time analysis of user-inputted sentences, identifying and tagging each word with its corresponding part of speech.
+
+* **Contextual Understanding:** The AI model helps in accurately classifying words within the context of a sentence, offering more precise grammatical insights.
+
+* **Interactive Learning:** By providing immediate feedback on sentence structure, the AI component transforms passive learning into an active, engaging exploration of grammar.
+
+---
+
+## 🔑 How to Get a Gemini API Key
+
+The Google Gemini API is essential for the "Analyze Your Sentence" feature to function. To use this interactive capability, you will need to obtain your own API key.
+
+1.  **Visit Google AI Studio:** Go to <https://makersuite.google.com/>.
+
+2.  **Sign in:** Use your Google account to sign in to the platform.
+
+3.  **Create API Key:** On the left-hand sidebar, look for the "Get API Key" option or navigate to the "API Keys" section.
+
+4.  **Generate New Key:** Click on "Create API Key in new project" (if you don't have an existing project) or simply "Create API Key" to generate a new key.
+
+5.  **Copy the Key:** Securely copy the generated API key.
+
+6.  **Integrate (for developers):** If you are running or modifying this code, you will need to insert this API key into the JavaScript code where the API calls are made. Look for a variable (e.g., `const API_KEY = "YOUR_API_KEY";`) and replace the placeholder with your copied key.
+
+---
+
 ## 🚀 Getting Started
 
 1. **Clone this repository:**
